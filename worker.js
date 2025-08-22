@@ -70,13 +70,24 @@ const RANDOM_PROMPTS = [
   'beautiful girl, breasts, curvy, looking down scope, looking away from viewer, laying on the ground, laying ontop of jacket, aiming a sniper rifle, dark braided hair, backwards hat, armor, sleeveless, arm sleeve tattoos, muscle tone, dogtags, sweaty, foreshortening, depth of field, at night, night, alpine, lightly snowing, dusting of snow, Closeup, detailed face, freckles',
 ];
 
-// Passwords for authentication
-// demo: const PASSWORDS = ['P@ssw0rd']
-const PASSWORDS = ['admin123']
+// Passwords for authentication are now provided via Wrangler bindings.
+// Configure one of the following in wrangler.toml or via `wrangler secret put`:
+// - ADMIN_PASSWORD: a single password string
+// - ADMIN_PASSWORDS: a comma-separated list of passwords
 
 
 export default {
   async fetch(request, env) {
+    // derive password list from env bindings per-request
+    let PASSWORDS = [];
+    if (env.ADMIN_PASSWORDS && String(env.ADMIN_PASSWORDS).trim() !== '') {
+      PASSWORDS = String(env.ADMIN_PASSWORDS)
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+    } else if (env.ADMIN_PASSWORD && String(env.ADMIN_PASSWORD).trim() !== '') {
+      PASSWORDS = [String(env.ADMIN_PASSWORD).trim()];
+    }
     const originalHost = request.headers.get("host");
 
     // CORS Headers
@@ -113,7 +124,7 @@ export default {
             'Content-Type': 'application/json'
           }
         });
-      } else if (path === '/api/config') {
+  } else if (path === '/api/config') {
         // expose minimal config to client
         return new Response(JSON.stringify({ require_password: PASSWORDS.length > 0 }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }

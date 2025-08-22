@@ -1,0 +1,19 @@
+# Cloudflare Wrangler configuration for cf-ai-image
+# Adjust the name to a unique value in your account before deploying.
+name = "cf-ai-image"
+main = "worker.js"
+compatibility_date = "2025-08-01"
+
+# Allow importing index.html as a text module
+rules = [
+  { type = "Text", globs = ["**/*.html"] }
+]
+
+# Plaintext vars (suitable for dev). For production, prefer `wrangler secret put ADMIN_PASSWORD`.
+[vars]
+# Replace this with your actual password (or use a secret instead)
+ADMIN_PASSWORD = "change-me"
+
+# Workers AI binding (required for env.AI.run)
+[ai]
+binding = "AI"
