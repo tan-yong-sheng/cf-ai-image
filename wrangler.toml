@@ -12,7 +12,7 @@ rules = [
 # Plaintext vars (suitable for dev). For production, prefer `wrangler secret put ADMIN_PASSWORD`.
 [vars]
 # Replace this with your actual password (or use a secret instead)
-ADMIN_PASSWORD = "change-me"
+ADMIN_PASSWORD = "admin123"
 
 # Workers AI binding (required for env.AI.run)
 [ai]
