@@ -26,6 +26,20 @@ const AVAILABLE_MODELS = [
     requiresImage: false
   },
   {
+    id: 'lucid-origin',
+    name: 'Leonardo Lucid Origin',
+    description: 'Leonardo.AI 最适应性强和提示响应性强的模型',
+    key: '@cf/leonardo/lucid-origin',
+    requiresImage: false
+  },
+  {
+    id: 'phoenix-1.0',
+    name: 'Leonardo Phoenix 1.0',
+    description: 'Leonardo.AI 具有卓越提示遵循性和连贯文本的模型',
+    key: '@cf/leonardo/phoenix-1.0',
+    requiresImage: false
+  },
+  {
     id: 'dreamshaper-8-lcm',
     name: 'DreamShaper 8 LCM',
     description: '增强图像真实感的 SD 微调模型',
@@ -206,6 +220,27 @@ export default {
               prompt: data.prompt || 'cyberpunk cat',
               steps: steps
             };
+          } else if (data.model === 'lucid-origin') {
+            // Leonardo Lucid Origin specific parameters
+            inputs = {
+              prompt: data.prompt || 'cyberpunk cat',
+              guidance: clamp(parseFloat(data.guidance ?? 4.5), 0.0, 10.0),
+              height: sanitizeDimension(parseInt(data.height, 10) || 1120, 1120),
+              width: sanitizeDimension(parseInt(data.width, 10) || 1120, 1120),
+              num_steps: clamp(parseInt(data.num_steps, 10) || 4, 1, 40),
+              seed: data.seed || parseInt((Math.random() * 1024 * 1024).toString(), 10)
+            };
+          } else if (data.model === 'phoenix-1.0') {
+            // Leonardo Phoenix 1.0 specific parameters
+            inputs = {
+              prompt: data.prompt || 'cyberpunk cat',
+              negative_prompt: data.negative_prompt || '',
+              guidance: clamp(parseFloat(data.guidance ?? 2.0), 2.0, 10.0),
+              height: sanitizeDimension(parseInt(data.height, 10) || 1024, 1024),
+              width: sanitizeDimension(parseInt(data.width, 10) || 1024, 1024),
+              num_steps: clamp(parseInt(data.num_steps, 10) || 25, 1, 50),
+              seed: data.seed || parseInt((Math.random() * 1024 * 1024).toString(), 10)
+            };
           } else if (
             data.model === 'stable-diffusion-v1-5-img2img' ||
             data.model === 'stable-diffusion-v1-5-inpainting'
@@ -304,9 +339,9 @@ export default {
 
               const images = [];
               for (const { res } of results) {
-                if (data.model === 'flux-1-schnell') {
+                if (data.model === 'flux-1-schnell' || data.model === 'lucid-origin') {
                   const json = typeof res === 'object' ? res : JSON.parse(res);
-                  if (!json.image) throw new Error('Invalid response from FLUX: missing image');
+                  if (!json.image) throw new Error(`Invalid response from ${data.model}: missing image`);
                   images.push(`data:image/png;base64,${json.image}`);
                 } else {
                   // binary bytes -> base64
@@ -330,8 +365,8 @@ export default {
 
             const { res: response, seconds: serverSeconds } = await generateOnce(0);
   
-            // Processing the response of the flux-1-schnell model
-            if (data.model === 'flux-1-schnell') {
+            // Processing the response of the flux-1-schnell and lucid-origin models
+            if (data.model === 'flux-1-schnell' || data.model === 'lucid-origin') {
               let jsonResponse;
   
               if (typeof response === 'object') {
