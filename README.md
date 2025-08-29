@@ -16,7 +16,7 @@
 
 ### 功能总览
 
-- 多模型：SDXL、FLUX、DreamShaper、Lightning、SD1.5 图生图、SD1.5 局部重绘
+- 多模型：SDXL、FLUX、Leonardo Lucid Origin、Leonardo Phoenix、DreamShaper、Lightning、SD1.5 图生图、SD1.5 局部重绘
 - 一次生成 1–8 张，画廊预览 + 悬浮操作（放大/复制/单张下载）
 - 批量下载 ZIP、复制参数、显示每张尺寸与大小
 - 真实 it/s 指标（服务端推理耗时），带进度条与 60s 超时提示
@@ -30,7 +30,7 @@
 
 2) 绑定 Workers AI：设置 → 绑定 → 添加绑定 → 类型选 “Workers AI”，变量名填 `AI` → 保存。
 
-3) 复制代码：将 `src/worker.js` 与 `src/index.html` 内容分别放入同名文件，保存并部署。
+3) 复制代码：将 `worker.js` 与 `index.html` 内容分别放入同名文件，保存并部署。
 
 4) 可选：设置自定义域（设置 → 域和路由）。
 
@@ -53,6 +53,8 @@
 | --- | --- | --- | --- | --- |
 | stable-diffusion-xl-base-1.0 | 文生图 | 通用写实/插画、高分辨率 1024×1024，人物/风景/产品图 | 步数 20 左右，宽高 1024 起步 | 质量稳定、细节好，速度中等 |
 | flux-1-schnell | 文生图（快速） | 快速草图/封面/风格化作品，追求速度的场景 | 步数 4–8（已自动限制），较小分辨率起步 | 返回 JSON（base64）→ 已在后端转为 PNG 输出 |
+| lucid-origin | 文生图（Leonardo） | 适应性强、提示响应精准，图形设计/全高清渲染 | 步数 4 左右，默认 1120×1120 | 返回 JSON（base64），支持文本渲染 |
+| phoenix-1.0 | 文生图（Leonardo） | 卓越提示遵循性和连贯文本，高质量输出 | 步数 25 左右，默认 1024×1024，支持负向提示词 | 返回二进制流，文本生成能力强 |
 | dreamshaper-8-lcm | 文生图（LCM） | 二次元/插画/艺术风格，迭代少、出图快 | 步数 8–12，512–768 更稳 | 风格统一、对细节追求适中 |
 | stable-diffusion-xl-lightning | 文生图（极速） | 秒级出图、快速迭代与方案对比 | 极少步数（1–4），512–768 | 速度快、细节欠佳，适合草稿 |
 | stable-diffusion-v1-5-img2img | 图生图 | 风格迁移、构图保持、低侵入式修改 | 需传 `image_url`，步数与 strength 控制变化幅度 | 输入图必须是图片直链（image/*）≤10MB |
@@ -92,12 +94,19 @@ curl -X POST https://<worker>.<subdomain>.workers.dev/ \
 
 ---
 
-## 配置与自定义
+## 配置与个性化
 
-- 模型清单：编辑 `src/worker.js` 中 `AVAILABLE_MODELS` 可增删/改描述、是否需要图片/遮罩。
-- 随机提示词：在 `RANDOM_PROMPTS` 维护。
-- 密码：`PASSWORDS=['admin123']`（留空即无密码），前端含登录遮罩与 Cookie 认证。
-- 生成数量：默认开放 1–8，可在前端下拉与后端上限同步调整。
+所有配置在 `wrangler.toml` 中完成。
+
+**免密码登录**：只需注释或删除密码配置。
+
+```toml
+[vars]
+# 单个密码示例
+ADMIN_PASSWORD = "your_password"
+# 多个密码示例（用逗号分隔）
+ADMIN_PASSWORDS = "password1,password2,password3"
+```
 
 ---
 
