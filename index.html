@@ -583,9 +583,46 @@
                     if (availableModels.length > 1) {
                         modelSelect.value = availableModels[1].id;
                     }
+                    
+                    // 设置模型切换事件监听器
+                    setupModelChangeListener();
+                    
+                    // 触发初始状态设置
+                    const initialChangeEvent = new Event('change');
+                    modelSelect.dispatchEvent(initialChangeEvent);
                 } catch (error) {
                     console.error('加载模型列表错误:', error);
                     showStatus('加载模型列表失败', 'error');
+                }
+            }
+            
+            // 设置模型切换事件监听器
+            function setupModelChangeListener() {
+                const modelSelectEl = document.getElementById('model');
+                const img2imgInputs = document.getElementById('img2imgInputs');
+                const negativePromptContainer = document.getElementById('negativePromptContainer');
+                
+                // 定义不支持 negative_prompt 的模型
+                const modelsWithoutNegativePrompt = ['flux-1-schnell', 'lucid-origin'];
+                
+                if (modelSelectEl && img2imgInputs && negativePromptContainer) {
+                    modelSelectEl.addEventListener('change', function() {
+                        const selected = availableModels.find(m => m.id === this.value);
+                        
+                        // 处理图生图输入框显示/隐藏
+                        if (selected && selected.requiresImage) {
+                            img2imgInputs.classList.remove('hidden');
+                        } else {
+                            img2imgInputs.classList.add('hidden');
+                        }
+                        
+                        // 处理反向提示词显示/隐藏
+                        if (selected && modelsWithoutNegativePrompt.includes(selected.id)) {
+                            negativePromptContainer.classList.add('hidden');
+                        } else {
+                            negativePromptContainer.classList.remove('hidden');
+                        }
+                    });
                 }
             }
             
@@ -668,34 +705,6 @@
                 }
             });
             
-            // 模型切换时显示/隐藏图生图字段和反向提示词字段
-            const modelSelectEl = document.getElementById('model');
-            const img2imgInputs = document.getElementById('img2imgInputs');
-            const negativePromptContainer = document.getElementById('negativePromptContainer');
-            
-            // 定义不支持 negative_prompt 的模型
-            const modelsWithoutNegativePrompt = ['flux-1-schnell', 'lucid-origin'];
-            
-            if (modelSelectEl && img2imgInputs && negativePromptContainer) {
-                modelSelectEl.addEventListener('change', function() {
-                    const selected = availableModels.find(m => m.id === this.value);
-                    
-                    // 处理图生图输入框显示/隐藏
-                    if (selected && selected.requiresImage) {
-                        img2imgInputs.classList.remove('hidden');
-                    } else {
-                        img2imgInputs.classList.add('hidden');
-                    }
-                    
-                    // 处理反向提示词显示/隐藏
-                    if (selected && modelsWithoutNegativePrompt.includes(selected.id)) {
-                        negativePromptContainer.classList.add('hidden');
-                    } else {
-                        negativePromptContainer.classList.remove('hidden');
-                    }
-                });
-            }
-
             // 滑块值显示
             const sliders = ['width', 'height', 'num_steps', 'guidance'];
             sliders.forEach(id => {
