@@ -234,13 +234,16 @@ export default {
             // Leonardo Phoenix 1.0 specific parameters
             inputs = {
               prompt: data.prompt || 'cyberpunk cat',
-              negative_prompt: data.negative_prompt || '',
               guidance: clamp(parseFloat(data.guidance ?? 2.0), 2.0, 10.0),
               height: sanitizeDimension(parseInt(data.height, 10) || 1024, 1024),
               width: sanitizeDimension(parseInt(data.width, 10) || 1024, 1024),
               num_steps: clamp(parseInt(data.num_steps, 10) || 25, 1, 50),
               seed: data.seed || parseInt((Math.random() * 1024 * 1024).toString(), 10)
             };
+            // Only include negative_prompt if it has content (min length 1 requirement)
+            if (data.negative_prompt && data.negative_prompt.trim().length > 0) {
+              inputs.negative_prompt = data.negative_prompt.trim();
+            }
           } else if (
             data.model === 'stable-diffusion-v1-5-img2img' ||
             data.model === 'stable-diffusion-v1-5-inpainting'
