@@ -336,7 +336,7 @@
                         <textarea id="prompt" rows="3" placeholder="描述您想要生成的图像内容及样式..." class="w-full">cyberpunk cat</textarea>
                     </div>
                     
-                    <div>
+                    <div id="negativePromptContainer">
                         <label for="negative_prompt" class="block text-sm font-medium mb-1 flex items-center">
                             <i class="fa-solid fa-ban mr-1 text-xs"></i> 反向提示词
                         </label>
@@ -668,16 +668,30 @@
                 }
             });
             
-            // 模型切换时显示/隐藏图生图字段
+            // 模型切换时显示/隐藏图生图字段和反向提示词字段
             const modelSelectEl = document.getElementById('model');
             const img2imgInputs = document.getElementById('img2imgInputs');
-            if (modelSelectEl && img2imgInputs) {
+            const negativePromptContainer = document.getElementById('negativePromptContainer');
+            
+            // 定义不支持 negative_prompt 的模型
+            const modelsWithoutNegativePrompt = ['flux-1-schnell', 'lucid-origin'];
+            
+            if (modelSelectEl && img2imgInputs && negativePromptContainer) {
                 modelSelectEl.addEventListener('change', function() {
                     const selected = availableModels.find(m => m.id === this.value);
+                    
+                    // 处理图生图输入框显示/隐藏
                     if (selected && selected.requiresImage) {
                         img2imgInputs.classList.remove('hidden');
                     } else {
                         img2imgInputs.classList.add('hidden');
+                    }
+                    
+                    // 处理反向提示词显示/隐藏
+                    if (selected && modelsWithoutNegativePrompt.includes(selected.id)) {
+                        negativePromptContainer.classList.add('hidden');
+                    } else {
+                        negativePromptContainer.classList.remove('hidden');
                     }
                 });
             }
