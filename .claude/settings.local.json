@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(wrangler dev:*)"
+      "Bash(wrangler dev:*)",
+      "mcp__playwright-mcp__browser_take_screenshot",
+      "mcp__playwright-mcp__browser_resize",
+      "mcp__playwright-mcp__browser_click",
+      "mcp__playwright-mcp__browser_press_key"
     ],
     "deny": [],
     "ask": []
